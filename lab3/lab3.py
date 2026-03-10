@@ -3,14 +3,13 @@ import pandas as pd
 import matplotlib.pyplot as plt
 
 
-# Зчитування даних
+
 df = pd.read_csv('data.csv')
 x = df['Month'].values.astype(np.float64)
 y = df['Temp'].values.astype(np.float64)
 
-# 2. Функції Методу найменших квадратів (МНК)
+
 def form_matrix(x, m):
-    """ Формування матриці системи """
     A = np.zeros((m + 1, m + 1), dtype=np.float64)
     for i in range(m + 1):
         for j in range(m + 1):
@@ -18,23 +17,19 @@ def form_matrix(x, m):
     return A
 
 def form_vector(x, y, m):
-    """ Формування вектора вільних членів """
     b = np.zeros(m + 1, dtype=np.float64)
     for i in range(m + 1):
         b[i] = np.sum(y * (x ** i))
     return b
 
 def gauss_solve(A_in, b_in):
-    """ Метод Гауса з вибором головного елемента по стовпцю """
     A = A_in.copy()
     b = b_in.copy()
     n = len(b)
     
     # Прямий хід
     for k in range(n - 1):
-        # Вибір найбільшого елемента
         max_row = np.argmax(np.abs(A[k:n, k])) + k
-        # Перестановка рядків
         A[[k, max_row]] = A[[max_row, k]]
         b[[k, max_row]] = b[[max_row, k]]
         
@@ -52,19 +47,15 @@ def gauss_solve(A_in, b_in):
     return x_sol
 
 def polynomial(x, coef):
-    """ Обчислення значення полінома """
     y_poly = np.zeros_like(x, dtype=np.float64)
     for i in range(len(coef)):
         y_poly += coef[i] * (x ** i)
     return y_poly
 
 def variance(y_true, y_approx):
-    """ Дисперсія (похибка) """
     return np.sum((y_true - y_approx) ** 2) / (len(y_true) + 1)
 
-# 3. Вибір оптимального ступеня полінома
-# 3. Вибір оптимального ступеня полінома
-# Обмежуємо до 4, щоб уникнути перенавчання та космічних прогнозів
+
 max_degree = 10
 variances = []
 best_var = float('inf')
@@ -81,24 +72,21 @@ for m in range(1, max_degree + 1):
     
     print(f"Ступінь m={m}: дисперсія = {var:.4f}")
     
-    # Зберігаємо індекс мінімального значення [cite: 170]
     if var < best_var:
         best_var = var
         optimal_m = m
 
 print(f"\n=> Оптимальний ступінь полінома за мінімумом дисперсії: {optimal_m}")
-# 4. Побудова апроксимації за оптимальним степенем
 A = form_matrix(x, optimal_m)
 b_vec = form_vector(x, y, optimal_m)
 coef = gauss_solve(A, b_vec)
 y_approx = polynomial(x, coef)
 
-# 5. Прогноз на наступні 3 місяці (Екстраполяція)
 x_future = np.array([25, 26, 27], dtype=np.float64)
 y_future = polynomial(x_future, coef)
 print(f"=> Прогноз температур на 25, 26, 27 місяці: {np.round(y_future, 2)}")
 
-# 6. Табуляція похибки апроксимації
+
 error = np.abs(y - y_approx)
 err_df = pd.DataFrame({
     'Month': x, 
@@ -109,10 +97,10 @@ err_df = pd.DataFrame({
 print("\n--- Таблиця похибок апроксимації (перші 10 значень) ---")
 print(err_df.head(10))
 
-# 7. Побудова графіків (Розширена версія для виконання пунктів 3 та 4)
+
 plt.figure(figsize=(16, 10))
 
-# Графік 1: Апроксимація та екстраполяція (оптимальний m)
+
 plt.subplot(2, 2, 1)
 plt.plot(x, y, 'o', label='Фактичні дані', color='blue')
 x_dense = np.linspace(min(x), max(x), 100)
@@ -121,7 +109,6 @@ plt.plot(x_future, y_future, 'X', color='red', markersize=8, label='Прогно
 plt.title('Апроксимація температури')
 plt.grid(True); plt.legend()
 
-# Графік 2: Залежність дисперсії від степеня m (Виконання Пункту 3)
 plt.subplot(2, 2, 2)
 m_values = range(1, max_degree + 1)
 plt.plot(m_values, variances, marker='s', color='orange', linestyle='--')
@@ -131,7 +118,7 @@ plt.ylabel('Дисперсія')
 plt.xticks(m_values)
 plt.grid(True)
 
-# Графік 3: Похибки для всіх випадків m=1...10 (Виконання Пункту 4)
+
 plt.subplot(2, 2, 3)
 for m in range(1, max_degree + 1):
     A_temp = form_matrix(x, m)
@@ -148,4 +135,5 @@ plt.grid(True)
 plt.legend(bbox_to_anchor=(1.05, 1), loc='upper left', fontsize='small')
 
 plt.tight_layout()
+
 plt.show()
