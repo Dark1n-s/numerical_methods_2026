@@ -3,11 +3,6 @@ import matplotlib.pyplot as plt
 import csv
 import math
 
-# ==========================================
-# ЗАГАЛЬНІ МАТЕМАТИЧНІ ФУНКЦІЇ
-# ==========================================
-
-# 1. Розділені різниці та Метод Ньютона
 def divided_differences(x, y):
     n = len(y)
     coef = np.zeros([n, n])
@@ -24,7 +19,6 @@ def newton_polynomial(coef, x_data, x_val):
         p = coef[n - k] + (x_val - x_data[n - k]) * p
     return p
 
-# 2. Метод Лагранжа
 def lagrange_polynomial(x_data, y_data, x_val):
     result = 0.0
     n = len(x_data)
@@ -36,9 +30,7 @@ def lagrange_polynomial(x_data, y_data, x_val):
         result += term
     return result
 
-# ==========================================
-# ЧАСТИНА 1: ВАРІАНТ 3 (Модель машинного навчання)
-# ==========================================
+
 print("=== ЧАСТИНА 1: ВАРІАНТ 3 ===")
 
 def read_data(filename):
@@ -68,18 +60,14 @@ try:
     plt.ylabel('Час тренування (сек)')
     plt.legend()
     plt.grid(True)
-    # Звідси прибрано plt.show()
 except FileNotFoundError:
-    print("Файл data.csv не знайдено. Пропускаю ЧАСТИНУ 1.")
+    print("Файл data.csv не знайдено.")
 
-# ==========================================
-# ЧАСТИНА 2: ДОСЛІДНИЦЬКА ЧАСТИНА
-# ==========================================
+
 print("=== ЧАСТИНА 2: ДОСЛІДНИЦЬКА ЧАСТИНА ===")
 nodes_list = [5, 10, 20]
 colors = ['blue', 'green', 'red']
 
-# --- Пункт 1: Вплив кроку (Фіксований інтервал [0, 2pi], різна кількість вузлів) ---
 def test_func_1(x): return np.sin(x)
 a1, b1 = 0, 2 * np.pi
 x_dense_1 = np.linspace(a1, b1, 1000)
@@ -111,17 +99,14 @@ plt.yscale('log')
 plt.legend()
 plt.grid(True)
 plt.tight_layout()
-# Звідси прибрано plt.show()
 
-# --- Пункт 2: Вплив кількості вузлів (Фіксований крок h=0.5, змінний інтервал) ---
 h = 0.5
 plt.figure(figsize=(12, 6))
 for n, c in zip(nodes_list, colors):
-    x_nodes = np.array([i * h for i in range(n)]) # x_0 = 0
+    x_nodes = np.array([i * h for i in range(n)])
     y_nodes = test_func_1(x_nodes)
     coef = divided_differences(x_nodes, y_nodes)
-    
-    # Інтервал для оцінки [0, (n-1)*h]
+
     x_dense_2 = np.linspace(0, (n-1)*h, 500)
     y_true_2 = test_func_1(x_dense_2)
     y_pred = [newton_polynomial(coef, x_nodes, xi) for xi in x_dense_2]
@@ -135,9 +120,7 @@ plt.xlabel('x')
 plt.ylabel('Абсолютна похибка')
 plt.legend()
 plt.grid(True)
-# Звідси прибрано plt.show()
 
-# --- Пункт 3: Аналіз ефекту Рунге ---
 def runge_function(x): return 1 / (1 + 25 * x**2)
 x_dense_runge = np.linspace(-1, 1, 1000)
 y_true_runge = runge_function(x_dense_runge)
@@ -169,10 +152,7 @@ plt.yscale('log')
 plt.legend()
 plt.grid(True)
 plt.tight_layout()
-# Звідси прибрано plt.show()
 
-# --- Пункт 4: Порівняння з методом Лагранжа ---
-# Використаємо n=10 для функції Рунге
 n_lagrange = 10
 x_nodes_l = np.linspace(-1, 1, n_lagrange)
 y_nodes_l = runge_function(x_nodes_l)
@@ -194,5 +174,4 @@ plt.grid(True)
 
 print("Усі розрахунки виконано! Відкриваю 5 вікон із графіками одночасно...")
 
-# ЄДИНИЙ виклик plt.show() наприкінці коду, що відображає усі згенеровані фігури
 plt.show()
